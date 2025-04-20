@@ -6,10 +6,10 @@ from torchvision.models.alexnet import AlexNet_Weights
 import os
 
 class ClassifierPipelineAlexnet:
-    def __init__(self, model_name='alexnet', num_classes=12, predict_img_dir='./predicted_images'):
+    def __init__(self, model_name='alexnet', num_classes=5, predict_img_dir='./predicted_images'):
         self.num_classes = num_classes
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.class_names = ['उनी', 'काम', 'घर', 'छ', 'त्यो', 'नेपाली', 'म', 'मेरो', 'रुख', 'शिक्षक', 'साथी', 'हो']
+        self.class_names = ['काम', 'घर', 'छ','त्यो','रुख']
         self.model = None
         self.predict_img_dir = predict_img_dir
         self.prediction_counts = {class_name: 0 for class_name in self.class_names}
@@ -25,11 +25,10 @@ class ClassifierPipelineAlexnet:
             param.requires_grad = False
 
         self.model.features[0] = nn.Conv2d(1, 64, kernel_size=(11, 11), stride=(4, 4), padding=(2, 2))
-        self.model.classifier[6] = nn.Linear(4096, self.num_classes)
-        self.model.classifier.add_module('7', nn.LogSoftmax(dim=1))
+        self.model.classifier[6] = nn.Linear(self.model.classifier[6].in_features, self.num_classes)
         self.model = self.model.to(self.device)
 
-    def load_model(self, path='./models/trained_model_alex01.pth'):
+    def load_model(self, path='./models/trained_alexnet_5dataset.pth'):
         self.model.load_state_dict(torch.load(path, map_location=self.device))
         self.model = self.model.to(self.device)
 
